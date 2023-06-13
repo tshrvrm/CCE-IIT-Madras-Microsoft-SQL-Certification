@@ -1,0 +1,87 @@
+--------------------
+Problem Statement
+--------------------
+
+You are a database administrator. You want to use the data to answer a few
+questions about your customers, especially about the sales and profit coming
+from different states, money spent in marketing and various other factors such as
+COGS, budget profit etc. You plan on using these insights to help find out which
+items are being sold the most. Additionally you need help to generate some basic
+datasets so your team can easily inspect the data without needing to use SQL.
+You have been provided with the sample of the overall customer data due to
+privacy issues. But you hope that these samples are enough for you to write fully
+functioning SQL queries to help answer the questions
+
+--------------------
+Tables Info
+--------------------
+
+1. Fact :
+
+-> Rows(without header) : 4248
+-> Columns : 14
+-> Column Names: Date, ProductId, Profit, Sales, Margin, COGS, Total Expenses, Marketing, Inventory, Budget Profit, Budget COGS, Budget Margin, Budget Sales & Area Code.
+
+2. Location :
+
+-> Rows(without header) : 156
+-> Columns : 4
+-> Column Names: Area Code, State, Market, Market Size
+
+3. Product :
+
+-> Rows(without header) : 13
+-> Columns : 4
+-> Column Names: ProductId,Product Type,Product,Type
+
+---------------------------------
+Load Excel Into SQL Server Table
+---------------------------------
+
+1. Create table in SQL Server that matches the structure of your csv file. Ensure that the table columns matches the column in CSV file.
+
+-- Create Table Product
+CREATE TABLE Product(
+	ProductId int primary key,
+	ProductType varchar(50) not null,
+	Product varchar(50) not null,
+	Type varchar(50) not null,
+);
+
+-- Create Table Location
+CREATE TABLE Location(
+	AreaCode int primary key,
+	State varchar(50) not null,
+	Market varchar(50) not null,
+	MarketSize varchar(50) not null
+);
+
+-- Create Table Fact
+CREATE TABLE Fact(
+	Date date not null,
+	ProductId int not null,
+	Profit int not null,
+	Sales int not null,
+	Margin int not null,
+	COGS int not null,
+	TotalExpenses int not null,
+	Marketing int not null,
+	Inventory int not null,
+	BudgetProfit int not null,
+	BudgetCOGS int not null,
+	BudgetMargin int not null,
+	BudgetSales int not null,
+	AreaCode int not null
+);
+
+2. Right click on database and select "Tasks --> Import Data"
+3. Select source as "Flat File Source" and configure the delimeter and text qualifier string
+4. Select destination as "SQL Server Native Client" and select the destination database and table
+5. Start the import process.
+6. Verify the count it should match with the csv count.
+
+SELECT count(*) FROM Location -- 156
+SELECT count(*) FROM Product -- 13
+SELECT count(*) FROM Fact -- 4248
+
+7. Woah ! We are done with the data loading.
