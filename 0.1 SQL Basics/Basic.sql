@@ -114,3 +114,134 @@ UPDATE Employee
 SET skills = 'Python'
 WHERE skills IS NULL;
 
+-- Update top statements
+-- The TOP statements to limit the number of rows that are modified in an UPDATE statement.
+-- When a TOP(n) clauses is used with UPDATE, the update operation is performed on a random n no of rows.
+
+UPDATE top(5) Employee
+SET skills = 'SQL';
+
+-- Update table with data from another table
+-- Create another table summary with column name store having int datatype as primary key, category column as unique.
+-- Insert two records in summary table and update the category column of summary table with order_no of store_details.
+
+CREATE TABLE STORE(
+	Store int primary key,
+	Store_Name varchar(50),
+	Sales int,
+	Order_No int,
+	Store_Location varchar(50),
+	City varchar(50),
+	Pincode int
+);
+
+INSERT INTO STORE VALUES (1, 'Walmart', 100, 246, 'UP','Khurja',203131),
+(2, 'Zudio',100,567,'Delhi','Najagarh',203141),
+(3, 'Reliance',500,678,'Gujrat','Kemi',904567),
+(4, 'Trends',400,789,'Mumbai','Sikandarabad',986405);
+
+CREATE TABLE SUMMARY(
+	Store int primary key,
+	Category int unique
+);
+
+INSERT INTO SUMMARY VALUES (2,100),
+(3,600);
+
+UPDATE SUMMARY
+SET Category = (SELECT Order_No FROM STORE WHERE Store.Store=SUMMARY.Store)
+WHERE EXISTS(SELECT Order_No FROM STORE WHERE STORE.Store=SUMMARY.Store);
+
+-- Add new columns profit and loss & Update top 2 records of Store Table
+
+ALTER TABLE STORE
+ADD PROFIT VARCHAR(10),
+LOSS VARCHAR(10)
+
+SET ROWCOUNT 2
+UPDATE STORE
+SET PROFIT='Yes',LOSS='No'
+SET ROWCOUNT 0;
+
+SELECT * FROM STORE;
+
+-- MERGE
+-- Merge is the combination of INSERT, DELETE and UPDATE Statements.
+-- INSERT --> UPDATE --> DELETE
+-- If there is a source table and a target table that are to be merged. Then with the help of merge statement, all three operations can be performed at once.
+
+-- Create two table named source table and target table 
+-- Column ProductId, ProductName, Price
+-- Now Insert the values into the same.
+
+Create Table Source_Table(
+	ProductId INT primary key,
+	ProductName VARCHAR(50),
+	Price INT
+);
+
+Create Table Target_Table(
+	ProductId INT primary key,
+	ProductName VARCHAR(50),
+	Price INT
+);
+
+INSERT INTO Source_Table VALUES (1,'Table',100),
+(2,'Desk',80),
+(3,'Chair',50),
+(4,'Computer',300);
+
+INSERT INTO Target_Table VALUES (1,'Table',100),
+(2,'Desk',180),
+(5,'Bed',50),
+(6,'Cupboard',300);
+
+SELECT * FROM Source_Table;
+SELECT * FROM Target_Table;
+
+-- INSERT (Taking the source rows in Target table)
+Begin Transaction
+MERGE Target_Table AS Target
+USING SOURCE_Table as Source
+ON Source.ProductId = Target.ProductId
+WHEN NOT MATCHED BY TARGET THEN 
+INSERT (ProductId, ProductName, Price) 
+VALUES (Source.ProductId, Source.ProductName, Source.Price);
+Rollback Transaction
+
+-- UPDATE(Updating the Target Rows using Source Data)
+BEGIN TRANSACTION
+MERGE TARGET_TABLE AS Target
+USING SOURCE_TABLE As Source
+ON Source.ProductID = Target.ProductId
+WHEN MATCHED THEN
+UPDATE SET Target.ProductName = Source.ProductName,
+Target.Price = Source.Price;
+ROLLBACK TRANSACTION
+
+-- DELETE(Deleting the Target Rows using the Source Data)
+BEGIN TRANSACTION
+MERGE TARGET_TABLE AS Target
+USING SOURCE_TABLE AS Source
+ON Source.ProductId = Target.ProductId
+WHEN NOT MATCHED BY SOURCE
+THEN DELETE;
+ROLLBACK TRANSACTION
+
+-- Delete ?
+-- It is used to delete existing records in a table
+-- Syntax : DELETE FROM table_name WHERE condition;
+DELETE FROM STORE
+WHERE SALES = 100;
+
+-- Truncate ?
+-- It is used to delete an existing data in a table, except the table itself.
+Truncate Table STORE;
+
+-- DROP ?
+-- It is used to drop an existing table in a database;
+DROP TABLE STORE;
+
+-- DELETE only Specific rows - DELETE
+-- DELETE All Data Except Schema - TRUNCATE
+-- DELETE Everthing (Data+Schema) - DROP
